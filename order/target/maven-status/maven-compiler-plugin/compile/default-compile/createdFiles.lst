@@ -1,0 +1,12 @@
+talentshare\PolicyHandler.class
+talentshare\external\PaymentHist.class
+talentshare\AbstractEvent$1.class
+talentshare\external\PaymentHistService.class
+talentshare\OrderController.class
+talentshare\AbstractEvent.class
+talentshare\Order.class
+talentshare\Ordered.class
+talentshare\OrderRepository.class
+talentshare\config\kafka\KafkaProcessor.class
+talentshare\OrderCanceled.class
+talentshare\OrderApplication.class
