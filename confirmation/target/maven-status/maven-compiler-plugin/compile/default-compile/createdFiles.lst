@@ -1,0 +1,15 @@
+talentshare\ConfirmationApplication.class
+talentshare\PaymentApproved.class
+talentshare\ConfirmAccepted.class
+talentshare\PolicyHandler.class
+talentshare\Confirmation.class
+talentshare\AbstractEvent$1.class
+talentshare\AbstractEvent.class
+talentshare\ConfirmCanceled.class
+talentshare\config\kafka\KafkaProcessor.class
+talentshare\CancellationRepository.class
+talentshare\ConfirmationController.class
+talentshare\CancellationController.class
+talentshare\OrderCanceled.class
+talentshare\Cancellation.class
+talentshare\ConfirmationRepository.class
