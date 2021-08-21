@@ -1,7 +1,7 @@
 # talentshare
 
 # Table of Contents
-- [Yanolza](#---)
+- [talentshare](#---)
   - [서비스 시나리오](#서비스-시나리오)
   - [분석 설계](#분석-설계)
   - [구현](#구현)
