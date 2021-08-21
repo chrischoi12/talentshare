@@ -1,0 +1,11 @@
+talentshare\PaymentApplication.class
+talentshare\PaymentApproved.class
+talentshare\ConfirmCanceled.class
+talentshare\PolicyHandler.class
+talentshare\config\kafka\KafkaProcessor.class
+talentshare\PaymentCanceled.class
+talentshare\PaymentHistRepository.class
+talentshare\AbstractEvent$1.class
+talentshare\AbstractEvent.class
+talentshare\PaymentHist.class
+talentshare\PaymentHistController.class
