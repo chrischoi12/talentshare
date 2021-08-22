@@ -737,6 +737,8 @@ siege -c255 -t60S -v --content-type "application/json" 'http://retrieve:8080/'
 
 ![hap 1](https://user-images.githubusercontent.com/3106233/130348172-cb1e3fb9-0479-41a9-b870-e650cb11a1a1.png)
 
+![hpa 2](https://user-images.githubusercontent.com/3106233/130348373-c18a63c2-357a-4c7b-be9b-c8ddfcd1920b.png)
+
 
 ## Readiness
 - 배포를 위해 retrieve microservice를 기존 v1 외에 추가적으로 v2를 Docker push 한다.
