@@ -561,6 +561,8 @@ docker login --username AWS -p $(aws ecr get-login-password-stdin --region ap-no
 
 
 
+
+
 이후 사전 설정이 완료된 상태에서 아래 배포 수행한다.
 ```
 (1) order build/push
@@ -608,6 +610,111 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080 -n yanolza
 ```
 Gateway는 LoadBalancer type으로 설정하고, 결과는 아래와 같다.
 ![deploy01](https://user-images.githubusercontent.com/87048674/130167640-039e535c-a1de-4089-b7fc-2a6fe60141f5.png)
+
+EKS에 Heml, Kafka 등 필요한 Tool들을 설치한다.
+```
+[Metric Server 설치]
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.5.0/components.yaml
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+
+[Helm 설치]
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+chmod 700 get_helm.sh
+./get_helm.sh
+
+[EKS에 Kafka 설치]
+kubectl --namespace kube-system create sa tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+
+helm repo add incubator https://charts.helm.sh/incubator
+helm repo update
+kubectl create ns kafka
+helm install my-kafka --namespace kafka incubator/kafka
+watch kubectl get all -n kafka
+::kafka Pod 3개, Zookeeper 3개 생성
+
+::Siege 설치
+kubectl create deploy siege --image=ghcr.io/acmexii/siege-nginx:latest
+```
+
+Code를 GitHub에서 Local로 Clone 한다.
+```
+git clone https://github.com/chrischoi12/talentshare.git
+```
+
+각 Microservice의 pom.xml이 위치한 디렉토리에서 Maven Build를 수행한다
+```
+cd /home/jacesky/code/talentshare/retrieve
+mvn package -Dmaven.test.skip=true
+
+cd /home/jacesky/code/talentshare/gateway
+mvn package -Dmaven.test.skip=true
+
+cd /home/jacesky/code/talentshare/order
+mvn package -Dmaven.test.skip=true
+
+cd /home/jacesky/code/talentshare/payment
+mvn package -Dmaven.test.skip=true
+
+cd /home/jacesky/code/talentshare/confirmation
+mvn package -Dmaven.test.skip=true
+```
+
+Docker Build 및 Push를 실행한다.
+```
+cd /home/jacesky/code/talentshare/retrieve
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v1 .
+::URI, Image name
+
+
+cd /home/jacesky/code/talentshare/gateway
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-gateway:v1 .
+
+cd /home/jacesky/code/talentshare/order
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-order:v1 .
+
+cd /home/jacesky/code/talentshare/payment
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-payment:v1 .
+
+cd /home/jacesky/code/talentshare/confirmation
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-confirmation:v1 .
+
+::Image Push
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v1
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-gateway:v1
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-order:v1
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-payment:v1
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-confirmation:v1
+::URI, Image name
+
+:: 에러 발생하면 도커 수행 후 상태 확인
+sudo /etc/init.d/docker start or sudo service docker start or /etc/init.d/docker start
+```
+
+Microservice를 Deploy 한다. Service를 Expose 할 때는 Gateway만 LoadBAlancer로 설정한다.
+```
+kubectl create deploy retrieve --image=[AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v1
+kubectl create deploy gateway --image=[AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-gateway:v1
+kubectl create deploy order --image=[AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-order:v1
+kubectl create deploy payment --image=[AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-payment:v1
+kubectl create deploy confirmation --image=[AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-confirmation:v1
+::ECR URI, ECR Name
+
+kubectl expose deploy retrieve --type=ClusterIP --port=8080
+kubectl expose deploy order --type=ClusterIP --port=8080
+kubectl expose deploy payment --type=ClusterIP --port=8080
+kubectl expose deploy confirmation --type=ClusterIP --port=8080
+
+kubectl expose deploy gateway --type=LoadBalancer --port=8080
+::Gateway만 LoadBalancer로 설정
+```
+
+![LoadBalancer](https://user-images.githubusercontent.com/3106233/130342569-7b24f66c-c968-48c4-a317-4250f0c74018.png)
+
+
+
+
+
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
