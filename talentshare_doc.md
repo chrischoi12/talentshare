@@ -104,7 +104,7 @@ mvn spring-boot:run
 - 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다. 
 
 ```
-package yanolza;
+package talentshare;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
@@ -112,8 +112,8 @@ import java.util.List;
 import java.util.Date;
 
 @Entity
-@Table(name="PaymentHistory_table")
-public class PaymentHistory {
+@Table(name="PaymentHist_table")
+public class PaymentHist {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -121,6 +121,25 @@ public class PaymentHistory {
     private Long orderId;
     private Long cardNo;
     private String status;
+
+    @PostPersist
+    public void onPostPersist(){
+        PaymentApproved paymentApproved = new PaymentApproved();
+        paymentApproved.setStatus("Payment Completed");
+        BeanUtils.copyProperties(this, paymentApproved);
+        paymentApproved.publishAfterCommit();
+
+    }
+    @PostUpdate
+    public void onPostUpdate(){
+        PaymentCanceled paymentCanceled = new PaymentCanceled();
+        BeanUtils.copyProperties(this, paymentCanceled);
+        paymentCanceled.publishAfterCommit();
+
+    }
+    @PrePersist
+    public void onPrePersist(){
+    }
 
     public Long getId() {
         return id;
@@ -155,33 +174,25 @@ public class PaymentHistory {
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
-package yanolza;
+package talentshare;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(collectionResourceRel="paymentHistories", path="paymentHistories")
-public interface PaymentHistoryRepository extends PagingAndSortingRepository<PaymentHistory, Long>{
-
+@RepositoryRestResource(collectionResourceRel="paymentHist", path="paymentHist")
+public interface PaymentHistRepository extends PagingAndSortingRepository<PaymentHist, Long>{
 }
 ```
+
 - 적용 후 REST API 의 테스트
 ```
 # order 서비스의 주문처리
-http localhost:8081/orders name="KimGM" cardNo=0 status="order start"
-
-# payment 서비스의 결제처리
-http localhost:8088/paymentHistories orderId=1 cardNo=0000
-
-# reservation 서비스의 예약처리
-http localhost:8088/reservations orderId=1 status="confirmed"
-
-# 주문 상태 확인    
-http localhost:8081/orders/1
-HTTP/1.1 200
-Content-Type: application/hal+json;charset=UTF-8
-Date: Thu, 19 Aug 2021 02:05:39 GMT
-Transfer-Encoding: chunked
+C:\Users\ijm92>http POST http://localhost:8088/orders name=jaehong cardNo=7 status=Ordered talentCategory=Bowling
+HTTP/1.1 201 Created
+Content-Type: application/json;charset=UTF-8
+Date: Sun, 22 Aug 2021 09:23:57 GMT
+Location: http://localhost:8081/orders/1
+transfer-encoding: chunked
 
 {
     "_links": {
@@ -192,11 +203,53 @@ Transfer-Encoding: chunked
             "href": "http://localhost:8081/orders/1"
         }
     },
-    "cardNo": 0,
-    "name": "KimGM",
-    "status": "order start"
+    "cardNo": 7,
+    "name": "jaehong",
+    "status": "Ordered",
+    "talentCategory": "Bowling"
 }
 
+# payment 서비스의 결제처리
+C:\Users\ijm92>http GET http://localhost:8088/paymentHist/1
+HTTP/1.1 200 OK
+Content-Type: application/hal+json;charset=UTF-8
+Date: Sun, 22 Aug 2021 09:24:45 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "paymentHist": {
+            "href": "http://localhost:8082/paymentHist/1"
+        },
+        "self": {
+            "href": "http://localhost:8082/paymentHist/1"
+        }
+    },
+    "cardNo": 7,
+    "orderId": 1,
+    "status": "Order Submitted"
+}
+
+# Confirmation 서비스의 예약처리
+C:\Users\ijm92>http GET http://localhost:8088/confirmations/1
+HTTP/1.1 200 OK
+Content-Type: application/hal+json;charset=UTF-8
+Date: Sun, 22 Aug 2021 09:25:15 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "confirmation": {
+            "href": "http://localhost:8083/confirmations/1"
+        },
+        "self": {
+            "href": "http://localhost:8083/confirmations/1"
+        }
+    },
+    "orderId": 1,
+    "status": "Confirmation Complete",
+    "talentCategory": null
+}
 ```
 
 
@@ -217,52 +270,6 @@ Polyglot Persistence를 위해 h2datase를 hsqldb로 변경
 			<scope>runtime</scope>
 		</dependency>
 -->
-
-# 변경/재기동 후 예약 주문
-http localhost:8081/orders name="lee" cardNo=1 status="order started"
-
-HTTP/1.1 201 
-Content-Type: application/json;charset=UTF-8
-Date: Wed, 18 Aug 2021 09:41:30 GMT
-Location: http://localhost:8081/orders/1
-Transfer-Encoding: chunked
-
-{
-    "_links": {
-        "order": {
-            "href": "http://localhost:8081/orders/1"
-        },
-        "self": {
-            "href": "http://localhost:8081/orders/1"
-        }
-    },
-    "cardNo": 1,
-    "name": "lee",
-    "status": "order started"
-}
-
-
-# 저장이 잘 되었는지 조회
-http localhost:8081/orders/1
-
-HTTP/1.1 200
-Content-Type: application/hal+json;charset=UTF-8    
-Date: Wed, 18 Aug 2021 09:42:25 GMT
-Transfer-Encoding: chunked
-
-{
-    "_links": {
-        "order": {
-            "href": "http://localhost:8081/orders/1"
-        },
-        "self": {
-            "href": "http://localhost:8081/orders/1"
-        }
-    },
-    "cardNo": 1,
-    "name": "lee",
-    "status": "order started"
-}
 ```
 
 ## CQRS
@@ -270,34 +277,30 @@ Transfer-Encoding: chunked
 CQRS 구현을 위해 고객의 예약 상황을 확인할 수 있는 Mypage를 구성.
 
 ```
-# mypage 호출 
-http localhost:8081/mypages/12
-
-HTTP/1.1 200 
+# Mypage 확인    
+C:\Users\ijm92>http GET http://localhost:8088/mypages/1
+HTTP/1.1 200 OK
 Content-Type: application/hal+json;charset=UTF-8
-Date: Wed, 18 Aug 2021 09:46:13 GMT
-Transfer-Encoding: chunked
+Date: Sun, 22 Aug 2021 09:26:00 GMT
+transfer-encoding: chunked
 
 {
     "_links": {
         "mypage": {
-            "href": "http://localhost:8084/mypages/2"
+            "href": "http://localhost:8084/mypages/1"
         },
         "self": {
-            "href": "http://localhost:8084/mypages/2"
+            "href": "http://localhost:8084/mypages/1"
         }
     },
     "cancellationId": null,
-    "name": "kim",
-    "orderId": 2,
-    "reservationId": 2,
-    "status": "Reservation Complete"
+    "confirmationId": 1,
+    "name": "jaehong",
+    "orderId": 1,
+    "status": "Confirmation Complete",
+    "talentCategory": "Bowling"
 }
 ```
-
-![order 1](https://user-images.githubusercontent.com/3106233/130169827-fe96f448-5523-4403-a1c5-be06a19c75f6.png)
-
-![order 2](https://user-images.githubusercontent.com/3106233/130169723-c70ec011-2106-46f2-a67e-d48af01757f1.png)
 
 
 ## 동기식 호출 과 Fallback 처리
@@ -329,7 +332,7 @@ public interface PaymentHistoryService {
 
 - 주문을 받은 직후(@PostPersist) 결제를 요청하도록 처리
 ```
-# Order.java (Entity)
+# Order.java
 
     @PostPersist
     public void onPostPersist(){
@@ -337,20 +340,15 @@ public interface PaymentHistoryService {
         BeanUtils.copyProperties(this, ordered);
         ordered.publishAfterCommit();
 
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+        talentshare.external.PaymentHist paymentHist = new talentshare.external.PaymentHist();
+        paymentHist.setOrderId(this.id);
+        paymentHist.setStatus("Order Submitted");
+        paymentHist.setCardNo(this.cardNo);              
+        
+        OrderApplication.applicationContext.getBean(talentshare.external.PaymentHistService.class)
+            .pay(paymentHist);
 
-        yanolza.external.PaymentHistory paymentHistory = new yanolza.external.PaymentHistory();
-        // mappings goes here
-        //PaymentHistory payment = new PaymentHistory();
-        System.out.println("this.id() : " + this.id);
-        paymentHistory.setOrderId(this.id);
-        paymentHistory.setStatus("Reservation Good");
-        paymentHistory.setCardNo(this.cardNo);      
-        
-        
-        OrderApplication.applicationContext.getBean(yanolza.external.PaymentHistoryService.class)
-            .pay(paymentHistory);
+    }
 ```
 
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
@@ -360,11 +358,10 @@ public interface PaymentHistoryService {
 # 결제 (payment) 서비스를 잠시 내려놓음 (ctrl+c)
 
 # 주문요청
-http http://localhost:8088/orders name="me" cardNo=123 status="Order Start"
- 
+C:\Users\ijm92>http POST http://localhost:8088/orders name=jaehong cardNo=8 status=Ordered talentCategory=Bowling
 HTTP/1.1 500 Internal Server Error
 Content-Type: application/json;charset=UTF-8
-Date: Wed, 18 Aug 2021 09:52:24 GMT
+Date: Sun, 22 Aug 2021 09:29:10 GMT
 transfer-encoding: chunked
 
 {
@@ -372,33 +369,33 @@ transfer-encoding: chunked
     "message": "Could not commit JPA transaction; nested exception is javax.persistence.RollbackException: Error while committing the transaction",
     "path": "/orders",
     "status": 500,
-    "timestamp": "2021-08-18T09:52:24.229+0000"
+    "timestamp": "2021-08-22T09:29:10.794+0000"
 }
 
 # 결제 (payment) 재기동
 mvn spring-boot:run
 
 #주문처리
-http http://localhost:8088/orders name="me" cardNo=123 status="Order Start"
-
+C:\Users\ijm92>http POST http://localhost:8088/orders name=jaehong cardNo=8 status=Ordered talentCategory=Bowling
 HTTP/1.1 201 Created
 Content-Type: application/json;charset=UTF-8
-Date: Wed, 18 Aug 2021 09:54:24 GMT
-Location: http://localhost:8081/orders/3    
+Date: Sun, 22 Aug 2021 09:30:19 GMT
+Location: http://localhost:8081/orders/6
 transfer-encoding: chunked
 
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/3"
+            "href": "http://localhost:8081/orders/6"
         },
         "self": {
-            "href": "http://localhost:8081/orders/3"
+            "href": "http://localhost:8081/orders/6"
         }
     },
-    "cardNo": 123,
-    "name": "me",
-    "status": "Order Start"
+    "cardNo": 8,
+    "name": "jaehong",
+    "status": "Ordered",
+    "talentCategory": "Bowling"
 }
 ```
 
@@ -419,10 +416,8 @@ package yanolza;
     @PostPersist
     public void onPostPersist(){
         PaymentApproved paymentApproved = new PaymentApproved();
-        
-	paymentApproved.setStatus("Pay OK");
-        
-	BeanUtils.copyProperties(this, paymentApproved);
+        paymentApproved.setStatus("Payment Completed");
+        BeanUtils.copyProperties(this, paymentApproved);
         paymentApproved.publishAfterCommit();
 
     }
@@ -430,77 +425,57 @@ package yanolza;
 - 예약 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package yanolza;
-
-...
+confirmation > PolicyHandler.java
 
 @Service
 public class PolicyHandler{
-    @Autowired ReservationRepository reservationRepository;
+    @Autowired ConfirmationRepository confirmationRepository;
+    @Autowired CancellationRepository cancellationRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverPaymentApproved_AcceptReserve(@Payload PaymentApproved paymentApproved){
+    public void wheneverPaymentApproved_AcceptConfirm(@Payload PaymentApproved paymentApproved){
 
         if(!paymentApproved.validate()) return;
 
-        System.out.println("\n\n##### listener AcceptReserve : " + paymentApproved.toJson() + "\n\n");
-	
-        Reservation reservation = new Reservation();
-        reservation.setStatus("Reservation Complete");
-        reservation.setOrderId(paymentApproved.getOrderId());
-        reservation.setId(paymentApproved.getOrderId());
-        reservationRepository.save(reservation);
-       
+        System.out.println("\n\n##### listener AcceptConfirm : " + paymentApproved.toJson() + "\n\n");
+
+
+        Confirmation confirmation = new Confirmation();
+        confirmation.setStatus("Confirmation Complete");
+        confirmation.setOrderId(paymentApproved.getOrderId());
+        // confirmation.setTalentCategory(paymentApproved.get);
+        confirmation.setId(paymentApproved.getOrderId());
+        confirmationRepository.save(confirmation);
 
     }
 ```
 
 예약 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 예약시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
-# 예약 서비스 (reservation) 를 잠시 내려놓음 (ctrl+c)
+# Confirmation을 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http localhost:8081/orders name="ChooChoo" cardNo=27 status="order started"
-
-#주문상태 확인
-http localhost:8081/orders/3      # 주문정상
+C:\Users\ijm92>http POST http://localhost:8088/orders name=jaehong cardNo=9 status=Ordered talentCategory=Bowling
+HTTP/1.1 201 Created
+Content-Type: application/json;charset=UTF-8
+Date: Sun, 22 Aug 2021 09:35:10 GMT
+Location: http://localhost:8081/orders/7
+transfer-encoding: chunked
 
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/3"
+            "href": "http://localhost:8081/orders/7"
         },
         "self": {
-            "href": "http://localhost:8081/orders/3"
+            "href": "http://localhost:8081/orders/7"
         }
     },
-    "cardNo": 27,
-    "name": "ChooChoo",
-    "status": "order started"
-}
-	    
-#예약 서비스 기동
-cd reservation
-mvn spring-boot:run
-
-#주문상태 확인
-http localhost:8084/mypages     # 예약 상태가 "Reservation Complete"으로 확인
-
- {
-                "_links": {
-                    "mypage": {
-                        "href": "http://localhost:8084/mypages/2"
-                    },
-                    "self": {
-                        "href": "http://localhost:8084/mypages/2"
-                    }
-                },
-                "cancellationId": null,
-                "name": "ChoiJung",
-                "orderId": 2,
-                "reservationId": 1,
-                "status": "Reservation Complete"
-            }
+    "cardNo": 9,
+    "name": "jaehong",
+    "status": "Ordered",
+    "talentCategory": "Bowling"
+}	    
 ```
 
 
