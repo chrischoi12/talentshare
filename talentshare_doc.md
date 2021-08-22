@@ -509,15 +509,43 @@ http localhost:8084/mypages     # 예약 상태가 "Reservation Complete"으로 
 
 # 운영
 
+
 ## Deploy
 
-아래와 같은 순서로 AWS 사전 설정을 진행한다.
+Local에서 CLI (Command Line Interface) 로 AWS 서비스를 사용하기 위해 AWS 자격 증명을 등록한다.
+
 ```
-1) AWS IAM 설정
-2) EKC Cluster 생성	
-3) AWS 클러스터 토큰 가져오기
-4) Docker Start/Login 
+Console > 상단 우측 사용자 클릭 > 내 보안 자격 증명
+- 액세스 키 만들기 클릭
+- ID, PW를 아래 명령어에 입력
+
+aws configure
+- AWS Access Key ID [None]: 위 ID 입력
+- AWS Secret Access Key [None]: 위 PW 입력
+- Default region name [None]: ap-northeast-2 입력
+- Default output format [None]: json 입력
+
+aws configure list
+ - 위 설정 등록 여부 확인
 ```
+
+EKS (Elastic Kubernetes Service) 를 생성한다.
+```
+eksctl create cluster --name [EKS name] --version 1.17 --nodegroup-name standard-workers --node-type t3.medium --nodes 4 --nodes-min 1 --nodes-max 4
+::EKS name 입력 (지정)
+
+AWS Console > EKS
+- 클러스터 클릭
+- 클러스터에 상태가 활성이면 완료.
+
+[클러스터 토큰 가져오기. Context arn 추가]
+aws eks --region ap-northeast-2 update-kubeconfig --name [EKS name]
+::Region code, EKS name 입력
+
+kubectl get all
+kubectl config current-context
+```
+
 이후 사전 설정이 완료된 상태에서 아래 배포 수행한다.
 ```
 (1) order build/push
