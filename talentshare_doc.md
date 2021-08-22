@@ -805,20 +805,16 @@ failureThreshold를 넘어서면 CrashLoopBackOff 상태로 서비스가 중지�
 ![live 2](https://user-images.githubusercontent.com/3106233/130343747-7f942b6d-f4fe-423d-8036-75a1d5d6e7c3.png)
 
 
-## Persistence Volume
-신규로 생성한 EFS Storage에 Pod가 접근할 수 있도록 권한 및 서비스 설정.
+## Persistence VolumeE
 
-1. EFS 생성: ClusterSharedNodeSecurityGroup 선택
-![efs01](https://user-images.githubusercontent.com/87048674/130165815-d22091e6-57a9-444a-ba15-320d44884302.png)
-![efs02](https://user-images.githubusercontent.com/87048674/130166013-1489c1b8-e4eb-4af1-9199-8f66ded06919.png)
-![efs03](https://user-images.githubusercontent.com/87048674/130166020-c091a1f8-c137-45b7-9fc8-4b2f582b7bbe.png)
+EFS (Elastic File Storage) 를 신규로 생성한 후, Pod가 EFS에 접근할 수 있또록 설정한다.
 
-2. EFS계정 생성 및 Role 바인딩
+- EFS 생성: ClusterSharedNodeSecurityGroup 선택
+- EFS계정 생성 및 Role 바인딩
 ```
 - ServerAccount 생성
 kubectl apply -f efs-sa.yml
 kubectl get ServiceAccount efs-provisioner -n yanolza
-
 
 -SA(efs-provisioner)에 권한(rbac) 설정
 kubectl apply -f efs-rbac.yaml
@@ -829,28 +825,29 @@ value: ap-northeast-2
 server: fs-3ddc505d.efs.ap-northeast-2.amazonaws.com
 ```
 
-3. EFS provisioner 설치
+- EFS provisioner 설치
 ```
 kubectl apply -f efs-provisioner-deploy.yml
 kubectl get Deployment efs-provisioner -n yanolza
 ```
 
-4. EFS storageclass 생성
+- EFS storageclass 생성
 ```
 kubectl apply -f efs-storageclass.yaml
 kubectl get sc aws-efs -n yanolza
 ```
 
-5. PVC 생성
+- PVC 생성
 ```
 kubectl apply -f volume-pvc.yml
 kubectl get pvc -n yanolza
 ```
 
-6. Create Pod with PersistentVolumeClaim
+- Create Pod with PersistentVolumeClaim
 ```
 kubectl apply -f pod-with-pvc.yaml
 ```
+
 - df-k로 EFS에 접근 가능
 
-![Volume](https://user-images.githubusercontent.com/3106233/130055195-aea654fa-d7df-4df8-9c57-53343f4e06ab.png)
+![dfk](https://user-images.githubusercontent.com/3106233/130353322-a332ce47-a7e1-4780-a189-8617c4839360.png)
