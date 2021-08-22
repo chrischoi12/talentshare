@@ -75,7 +75,7 @@
 
 ## Hexagonal Architecture Diagram
 
-![슬라이드1](https://user-images.githubusercontent.com/3106233/130342879-80aab79b-8605-44b0-9049-4c0bdb7923c5.PNG)
+![슬라이드1](https://user-images.githubusercontent.com/3106233/130350271-d212469e-01b9-4058-873e-8ead538107b9.PNG)
 
 - Inbound adaptor와 Outbound adaptor를 구분함
 - 호출관계에서 PubSub 과 Req/Resp 를 구분함
