@@ -731,8 +731,16 @@ customer(mypage)에 대한 조회증가 시 replica 를 동적으로 늘려주�
 
 
 ## 무정지 재배포 (Readiness)
+- 배포를 위해 기존 v1 외에 추가적으로 v2를 Docker push 한다.
+```
+cd /home/jacesky/code/talentshare/retrieve
+mvn package -Dmaven.test.skip=true
+docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v2 .
+docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v2
+```
 
-* 먼저 무정지 재배포가 100% 되는 것인지 확인하기 위해서 Autoscaler 이나 CB 설정을 제거함
+
+
 - customer microservice v2 이미지를 생성해 deploy
 - 새 터미널에서 seige 로 배포작업 직전에 워크로드를 모니터링 함.
 - 새버전으로 배포
