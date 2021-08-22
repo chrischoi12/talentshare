@@ -731,7 +731,7 @@ customer(mypage)에 대한 조회증가 시 replica 를 동적으로 늘려주�
 
 
 ## 무정지 재배포 (Readiness)
-- 배포를 위해 기존 v1 외에 추가적으로 v2를 Docker push 한다.
+- 배포를 위해 retrieve microservice를 기존 v1 외에 추가적으로 v2를 Docker push 한다.
 ```
 cd /home/jacesky/code/talentshare/retrieve
 mvn package -Dmaven.test.skip=true
@@ -739,24 +739,56 @@ docker build -t [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaeho
 docker push [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/jaehong-retrieve:v2
 ```
 
-
-
-- customer microservice v2 이미지를 생성해 deploy
-- 새 터미널에서 seige 로 배포작업 직전에 워크로드를 모니터링 함.
-- 새버전으로 배포
-
+Readiness 설정이 없는 yml 파일로 v1 이미지를 Deploy 한다.
 ```
 kubectl apply -f /home/jacesky/yanolza-team/kubernetes/deployment_readiness_v1.yml
 ```
 
-- seige에서  Availability 가 100% 미만으로 떨어졌는지 확인
-
-![Readiness 1](https://user-images.githubusercontent.com/3106233/130053885-2bece799-de7e-44e4-b6eb-f588a0fd37e2.png)
-
-배포기간중 Availability 가 평소 100%에서 90%대로 떨어지는 것을 확인. Kubernetes가 신규로 Deploy된 Microservice를 준비 상태로 인식해 서비스 수행했기 때문임.
-방지를 위해 Readiness Probe 를 설정함:
-
+Siege에 접속해 retrieve microservice를 실행한다.
 ```
+kubectl exec pod/siege-c54d6bdc7-k9mj5 -it -- /bin/bash
+siege -v -c1 -t80S http://retrieve:8080
+```
+
+Readiness 설정이 없는 yml 파일로 v2 이미지를 Deploy 한다.
+```
+kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_readiness_v2.yml
+```
+
+Availability가 50%대로 떨어졌음을 확인했다. Readiness가 보장되지 않아 배포 중 서비스에 접근할 수 없어서 에러가 발생한 것이다.
+
+![readiness_1](https://user-images.githubusercontent.com/3106233/130343426-2e6baed3-e582-42fb-8a12-6ca8f8c794af.png)
+
+v1 이미지로 원복한다.
+```
+kubectl apply -f /home/jacesky/yanolza-team/kubernetes/deployment_readiness_v1.yml
+```
+
+Siege에 접속해 retrieve microservice를 실행한다.
+```
+kubectl exec pod/siege-c54d6bdc7-k9mj5 -it -- /bin/bash
+siege -v -c1 -t80S http://retrieve:8080
+```
+
+Readiness 설정이 포함된 yml로 v2 이미지를 Deploy 한다.
+```
+kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_readiness_v3.yml
+
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+```
+
+Availability가 99%대로 증가했다.
+
+![readiness_2](https://user-images.githubusercontent.com/3106233/130343501-91db1b5c-f821-4237-a4ba-a355c1ab16e3.png)
+
+
 # deployment.yaml 의 readiness probe 의 설정:
 kubectl apply -f kubernetes/deployment.yaml
 ```
