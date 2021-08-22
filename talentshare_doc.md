@@ -11,7 +11,7 @@
   - [운영](#운영)
     - [Deploy](#Deploy)
     - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
-    - [오토스케일 아웃](#오토스케일-아웃)
+    - [HPA](#HPA)
     - [Readiness](#Readiness)
     - [Liveness](#Liveness)
     - [Persistence Volume](#Persistence-Volume)
@@ -709,25 +709,33 @@ spec:
 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌.
 
 
+### HPA
+Mypage 조회 건수 증가 시 Pod를 동적으로 증가시키도록 HPA (Auto-scaleout) 을 실행한다.
 
-### 오토스케일 아웃
-customer(mypage)에 대한 조회증가 시 replica 를 동적으로 늘려주도록 오토스케일아웃을 설정한다.
+- yaml 파일에 Mypage Pod 실행 시 resources 설정을 추가한다.
+```
+kubectl apply -f /home/jacesky/code/talentshare/kubernetes/autoscaleout_retrieve.yaml
 
-- autoscaleout_customer.yaml에 resources 설정을 추가한다
+          resources:
+            requests:
+              cpu: "200m"
+            limits:
+              cpu: "500m"
+```
 
-![autoscale_yaml](https://user-images.githubusercontent.com/3106233/130160306-ca9c2cf7-760e-4d28-841d-730d7061e96b.jpg)
+- autoscale 설정 시 CPU resource의 50%를 임계치로 두고, 임계치를 넘게 되면 최대 5개까지 Pod가 증가하도록 한다.
+```
+kubectl autoscale deployment retrieve --cpu-percent=50 --min=1 --max=5
+```
 
-- customer 서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 50프로를 넘어서면 replica 를 10개까지 늘려준다.
+- Siege를 활용해 부하를 준다.
+```
+siege -c255 -t60S -v --content-type "application/json" 'http://retrieve:8080/'
+```
 
-![autoscale_setting](https://user-images.githubusercontent.com/3106233/130160324-7b392a52-cfd5-4125-8d2e-917848fd5d2c.jpg)
+- Pod가 점차 증가하는 것을 확인할 수 있다.
 
-- 부하를 동시사용자 100명으로 걸어준다.
-
-![autoscale_load_st](https://user-images.githubusercontent.com/3106233/130160336-098b0308-ed06-45a9-9217-f58e3b939a1b.jpg)
-
-- 모니터링 결과 스케일 아웃 정상작동을 확인할 수 있다.
-
-![autoscale_pod_inc](https://user-images.githubusercontent.com/3106233/130160357-ed15e5a3-8b63-4ce8-988f-ac5ea788d042.jpg)
+![hap 1](https://user-images.githubusercontent.com/3106233/130348172-cb1e3fb9-0479-41a9-b870-e650cb11a1a1.png)
 
 
 ## Readiness
