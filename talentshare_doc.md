@@ -791,9 +791,10 @@ Availability가 99%대로 증가했다.
 
 ## Liveness
 
-임의로 Pod의 Health check에 문제를 발생시키고, Liveness Probe가 Pod를 재기동하는지 확인
-
+yml 내에 임의로 Health check 대상이 되는 디렉토리를 삭제(rm) 하도록 설정한다. livenessProbe 설정에서 해당 디렉토리를 체크하도록 되어 있는데, 정상적이지 않은 상태로 판단하고 Retry를 시도하다가, 임계치 회수가 초과하면 서비스를 중지한다.
 ```
+kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_liveness.yml
+
           args:
           - /bin/sh
           - -c
@@ -811,10 +812,13 @@ Availability가 99%대로 증가했다.
             failureThreshold: 5
 ```
 
+RESTARTS 회수가 증가하는 것을 확인했다.
 
-RESTARTS 회수가 증가함.
+![live 1](https://user-images.githubusercontent.com/3106233/130343737-4a129246-be03-4309-a840-447c03833ca4.png)
 
-![Liveness](https://user-images.githubusercontent.com/3106233/130054276-24f98bd4-9481-47e0-bf23-a47ad074fb7f.png)
+failureThreshold를 넘어서면 CrashLoopBackOff 상태로 서비스가 중지된다.
+
+![live 2](https://user-images.githubusercontent.com/3106233/130343747-7f942b6d-f4fe-423d-8036-75a1d5d6e7c3.png)
 
 
 ## Persistence Volume
