@@ -44,22 +44,19 @@
 - MSAEZ에서 Event Storming 수행 (http://www.msaez.io/#/storming/He5WER68NAWpdvty4ZEZ4V7rofn1/f7596c11853d6fcd20711e680dab94ba)
 - Event 도출
 
+![Event](https://user-images.githubusercontent.com/3106233/130342853-16069fb9-6d96-402f-880e-fb11dd3ce1ed.png)
 
+- Command, Policy 부착
 
-- Actor, Command 부착
-
-
-- Policy 부착
-
+![Event 2](https://user-images.githubusercontent.com/3106233/130342862-9d690cdc-4ea2-4bf7-9a30-005e4f9a4674.png)
 
 - Aggregate 부착
 
+![Event 3](https://user-images.githubusercontent.com/3106233/130342870-30872b28-6a30-4cbe-b283-6d8bb64232f1.png)
 
-- View 추가 및 Bounded Context 묶기
+- View, Pub/Sub, Req/Res 추가 및 Bounded Context 묶기
 
-
-- 완성 모형: Pub/Sub, Req/Res 추가
-
+![Event 4](https://user-images.githubusercontent.com/3106233/130342873-a61dfacb-3fbd-473a-9ade-ab799c586d5b.png)
 
 기능적 요구사항 커버 여부 검증
 
@@ -78,7 +75,7 @@
 
 ## Hexagonal Architecture Diagram
 
-![슬라이드8](https://user-images.githubusercontent.com/3106233/129735687-d54b9e92-1259-4d6b-8cd0-a4a45b1fc543.PNG)
+![슬라이드1](https://user-images.githubusercontent.com/3106233/130342879-80aab79b-8605-44b0-9049-4c0bdb7923c5.PNG)
 
 - Inbound adaptor와 Outbound adaptor를 구분함
 - 호출관계에서 PubSub 과 Req/Resp 를 구분함
@@ -89,16 +86,16 @@
 4개의 Microservice를 Springboot로 구현했으며, 다음과 같이 실행해 Local test를 진행했다. Port number는 8081~8084이다.
 
 ```
-cd customer
+cd /home/jacesky/code/talentshare/confirmation
 mvn spring-boot:run
 
-cd order
+cd /home/jacesky/code/talentshare/order
 mvn spring-boot:run
 
-cd payment
-mvn spring-boot:run
+cd /home/jacesky/code/talentshare/payment
+spring-boot:run
 
-cd reservation
+/home/jacesky/code/talentshare/retrieve
 mvn spring-boot:run
 ```
 
@@ -558,58 +555,6 @@ aws ecr create-repository --repository-name jaehong-payment --region ap-northeas
 docker login --username AWS -p $(aws ecr get-login-password-stdin --region ap-northeast-2) [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/
 ::Region id, ECR 저장소 입력
 ```
-
-
-
-
-
-이후 사전 설정이 완료된 상태에서 아래 배포 수행한다.
-```
-(1) order build/push
-mvn package
-docker build -t 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-order:v1 .
-aws ecr create-repository --repository-name user03-order --region ap-northeast-2
-docker push 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-order:v1
-
-(2) reservation build/push
-mvn package
-docker build -t 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-reservation:v1 .
-aws ecr create-repository --repository-name user03-reservation --region ap-northeast-2
-docker push 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-reservation:v1
-
-(3) payment build/push
-mvn package
-docker build -t 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-payment:v1 .
-aws ecr create-repository --repository-name user03-payment --region ap-northeast-2
-docker push 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-payment:v1
-
-(4) customer build/push
-mvn package
-docker build -t 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-customer:v1 .
-aws ecr create-repository --repository-name user03-customer --region ap-northeast-2
-docker push 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-customer:v1
-
-(5) gateway build/push
-mvn package
-docker build -t 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-gateway:v1 .
-aws ecr create-repository --repository-name user03-gateway --region ap-northeast-2
-docker push 879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-gateway:v1
-
-(6) 배포
-kubectl create deploy order --image=879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-order:v1 -n yanolza
-kubectl create deploy reservation --image=879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-reservation:v1 -n yanolza
-kubectl create deploy payment --image=879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-payment:v1 -n yanolza
-kubectl create deploy customer --image=879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-customer:v1 -n yanolza
-kubectl create deploy gateway --image=879772956301.dkr.ecr.ap-northeast-2.amazonaws.com/user03-gateway:v1 -n yanolza
-
-kubectl expose deploy order --type=ClusterIP --port=8080 -n yanolza
-kubectl expose deploy reservation --type=ClusterIP --port=8080 -n yanolza
-kubectl expose deploy payment --type=ClusterIP --port=8080 -n yanolza
-kubectl expose deploy customer --type=ClusterIP --port=8080 -n yanolza
-kubectl expose deploy gateway --type=LoadBalancer --port=8080 -n yanolza
-```
-Gateway는 LoadBalancer type으로 설정하고, 결과는 아래와 같다.
-![deploy01](https://user-images.githubusercontent.com/87048674/130167640-039e535c-a1de-4089-b7fc-2a6fe60141f5.png)
 
 EKS에 Heml, Kafka 등 필요한 Tool들을 설치한다.
 ```
