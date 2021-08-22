@@ -546,6 +546,21 @@ kubectl get all
 kubectl config current-context
 ```
 
+Image를 업로드할 ECR을 생성한다. Microservice 별로 하나씩 생성하며, Repository 별 URI를 복사한다. 이어서 ECR 인증 로그인을 수행한다.
+```
+aws ecr create-repository --repository-name jaehong-retrieve --region ap-northeast-2
+aws ecr create-repository --repository-name jaehong-gateway --region ap-northeast-2
+aws ecr create-repository --repository-name jaehong-reservation --region ap-northeast-2
+aws ecr create-repository --repository-name jaehong-order --region ap-northeast-2
+aws ecr create-repository --repository-name jaehong-payment --region ap-northeast-2
+::ECR Name, Region
+
+docker login --username AWS -p $(aws ecr get-login-password-stdin --region ap-northeast-2) [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/
+::Region id, ECR 저장소 입력
+```
+
+
+
 이후 사전 설정이 완료된 상태에서 아래 배포 수행한다.
 ```
 (1) order build/push
