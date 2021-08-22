@@ -657,22 +657,24 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080
 ![LoadBalancer](https://user-images.githubusercontent.com/3106233/130342569-7b24f66c-c968-48c4-a317-4250f0c74018.png)
 
 
-
-
-
-
-
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
+
 
 ## Circuit Breaker
 
-* Circuit Breaker 프레임워크의 선택: istio 사용하여 구현.
+Istio를 활용해 Circuit Breaker를 구현했다. Order로 유입되는 요청 건수가 임계치를 초과하게 되면 Circuit Breaker를 이용해 장애 격리 (Fault Isolation) 하도록 한다.
 
-시나리오는 주문(order) → 결제(payment) 시의 연결이 Request/Response 로 연동하여 구현이 되어있고, 주문 요청이 과도할 경우 CB 를 통하여 장애격리.
-
-- DestinationRule 를 생성하여 circuit break 가 발생할 수 있도록 설정 최소 connection pool 설정
+- Istio 설정을 한다.
 ```
-# destination-rule.yaml
+kubectl create namespace istio-system
+kubectl get ns -L istio-injection
+kubectl label namespace default istio-injection=enabled
+kubectl get ns -L istio-injection
+```
+
+- yaml 파일에 설정된 DestinationRule에 요청 건수 임계치를 설정한다.
+```
+kubectl apply -f /home/jacesky/code/talentshare/kubernetes/destination-rule.yaml
 
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -685,28 +687,25 @@ spec:
       http:
         http1MaxPendingRequests: 1
         maxRequestsPerConnection: 1
-
 ```
 
-- istio-injection 활성화
+- Siege를 사용해 부하를 발생한다. 1명 처리 시 문제 없이 실행되었다.
+```
+#1명 처리
+siege -c1 -t10S -v --content-type "application/json" 'http://order:8080/orders POST {"name": "VIP", "cardNo": "999"}'
+```
 
-![CB_setting](https://user-images.githubusercontent.com/3106233/130160176-c4905961-5a64-43d5-b925-ce7fabe82142.jpg)
+![circuit 1](https://user-images.githubusercontent.com/3106233/130348891-56d84300-d947-4d2b-8f6e-cf26bdbccfab.png)
 
-![CB_apply](https://user-images.githubusercontent.com/3106233/130160091-07a3ff17-5fd5-4175-b9e2-c2215b77a802.jpg)
+- 5명 처리 시 중간 중간 임계치 초과로 인해 에러가 발생했고, Availability는 72% 수준으로 떨어졌다.
+```
+#5명 처리
+siege -c5 -t10S -v --content-type "application/json" 'http://order:8080/orders POST {"name": "VIP", "cardNo": "999"}'
+```
 
+![circuit 2](https://user-images.githubusercontent.com/3106233/130348900-99d2b7ca-0e14-423b-bea9-7c363cd6c77b.png)
 
-
-- 1명이 10초간 부하 발생하여 100% 정상처리 확인
-
-![CB_load_st_be](https://user-images.githubusercontent.com/3106233/130160213-a083edb3-b40b-4626-8f0d-5c5ff1956cba.jpg)
-
-
-- 10명이 10초간 부하 발생하여 82.05% 정상처리, 168건 실패 확인
-
-![CB_load_rs_af](https://user-images.githubusercontent.com/3106233/130160265-cc77b0de-1e8a-4713-af89-81011941c93d.jpg)
-
-
-운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌.
+부하나 상대 시스템의 Req 처리 오류로 인해 Microservice가 죽지 않도록 Circuit Breaker가 미연에 방지한다.
 
 
 ### HPA
