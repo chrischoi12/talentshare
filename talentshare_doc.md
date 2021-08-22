@@ -12,7 +12,7 @@
     - [Deploy](#Deploy)
     - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
     - [오토스케일 아웃](#오토스케일-아웃)
-    - [무정지 재배포](#무정지-재배포)
+    - [Readiness](#Readiness)
     - [Liveness](#Liveness)
     - [Persistence Volume](#Persistence-Volume)
 
@@ -730,7 +730,7 @@ customer(mypage)에 대한 조회증가 시 replica 를 동적으로 늘려주�
 ![autoscale_pod_inc](https://user-images.githubusercontent.com/3106233/130160357-ed15e5a3-8b63-4ce8-988f-ac5ea788d042.jpg)
 
 
-## 무정지 재배포 (Readiness)
+## Readiness
 - 배포를 위해 retrieve microservice를 기존 v1 외에 추가적으로 v2를 Docker push 한다.
 ```
 cd /home/jacesky/code/talentshare/retrieve
@@ -787,17 +787,6 @@ kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_readiness_
 Availability가 99%대로 증가했다.
 
 ![readiness_2](https://user-images.githubusercontent.com/3106233/130343501-91db1b5c-f821-4237-a4ba-a355c1ab16e3.png)
-
-
-# deployment.yaml 의 readiness probe 의 설정:
-kubectl apply -f kubernetes/deployment.yaml
-```
-
-- 동일한 시나리오로 재배포 한 후 Availability 확인:
-
-![Readiness 2](https://user-images.githubusercontent.com/3106233/130053849-49de6039-299a-47fa-adde-dac3e114dab0.png)
-
-배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
 
 
 ## Liveness
