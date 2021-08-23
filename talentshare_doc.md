@@ -410,16 +410,13 @@ transfer-encoding: chunked
 - 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
 ```
-package yanolza;
-
+confirmation > Cancellation.java
  ...
     @PostPersist
     public void onPostPersist(){
-        PaymentApproved paymentApproved = new PaymentApproved();
-        paymentApproved.setStatus("Payment Completed");
-        BeanUtils.copyProperties(this, paymentApproved);
-        paymentApproved.publishAfterCommit();
-
+        ConfirmCanceled confirmCanceled = new ConfirmCanceled();
+        BeanUtils.copyProperties(this, confirmCanceled);
+        confirmCanceled.publishAfterCommit();
     }
 ```
 - 예약 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
