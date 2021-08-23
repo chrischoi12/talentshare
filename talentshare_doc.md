@@ -255,7 +255,7 @@ transfer-encoding: chunked
 
 ## Polyglot Persistence
 
-Polyglot Persistence를 위해 h2datase를 hsqldb로 변경
+Polyglot Persistence를 위해 h2datase를 hsqldb로 변경한다.
 
 ```
 		<dependency>
@@ -271,6 +271,47 @@ Polyglot Persistence를 위해 h2datase를 hsqldb로 변경
 		</dependency>
 -->
 ```
+
+src/main/resources 디렉토리에 schema.sql 파일을 생성하고, 필요한 Table을 정의한다. hsqldb가 기동할 때 해당 Table을 생성해 준다.
+```
+DROP TABLE CONFIRMATION IF EXISTS;
+CREATE TABLE CONFIRMATION (
+orderid BIGINT IDENTITY NOT NULL PRIMARY KEY,
+name VARCHAR(20),
+status VARCHAR(50)
+);
+```
+
+PolicyHandler가 Event를 수신할 때 CONFIRMATION Table에 기본 정보를 입력하고, 입력된 결과를 출력하도록 구현한다.
+```
+confirmation > PolicyHanler.java
+
+public class PolicyHandler{    
+    @Autowired ConfirmationRepository confirmationRepository;
+    @Autowired CancellationRepository cancellationRepository;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPaymentApproved_AcceptConfirm(@Payload PaymentApproved paymentApproved){
+
+        if(!paymentApproved.validate()) return;
+        Confirmation confirmation = new Confirmation();
+        confirmation.setStatus("Confirmation Complete");
+        confirmation.setOrderId(paymentApproved.getOrderId());
+        // confirmation.setTalentCategory(paymentApproved.get);
+        confirmation.setId(paymentApproved.getOrderId());
+        confirmationRepository.save(confirmation);
+
+        this.jdbc.update("insert into CONFIRMATION (orderid, name, status) values (?, ?, ?)", paymentApproved.getOrderId(), "Chris Choi", "Confirmation Complete");
+        List<Map<String, Object>> list = this.jdbc.queryForList("SELECT * FROM CONFIRMATION");
+        list.forEach(System.out::println);
+    }
+```
+
+![hsqldb](https://user-images.githubusercontent.com/3106233/130481775-6f9bfc45-2b8f-4f4c-a709-781c2ba03215.png)
+
 
 ## CQRS
 
