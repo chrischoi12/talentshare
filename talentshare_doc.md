@@ -256,7 +256,6 @@ transfer-encoding: chunked
 ## Polyglot Persistence
 
 Polyglot Persistence를 위해 h2datase를 hsqldb로 변경한다.
-
 ```
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -274,6 +273,8 @@ Polyglot Persistence를 위해 h2datase를 hsqldb로 변경한다.
 
 src/main/resources 디렉토리에 schema.sql 파일을 생성하고, 필요한 Table을 정의한다. hsqldb가 기동할 때 해당 Table을 생성해 준다.
 ```
+confirmation > schema.sql
+
 DROP TABLE CONFIRMATION IF EXISTS;
 CREATE TABLE CONFIRMATION (
 orderid BIGINT IDENTITY NOT NULL PRIMARY KEY,
