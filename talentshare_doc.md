@@ -79,6 +79,10 @@ https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
 2. 결제가 완료되어야 예약이 완료된다. (Req/Res) (O)
 3. 부하 발생 시 자동으로 처리 프로세스를 증가시킨다. (Autoscale) (O)
 
+요구사항에 맞도록 Flow가 구성되었는지 확인했다.
+
+![Flow](https://user-images.githubusercontent.com/3106233/131766223-90d209bf-c391-488a-b71b-d507c97ed588.png)
+
 ## Hexagonal Architecture Diagram
 
 ![슬라이드1](https://user-images.githubusercontent.com/3106233/130350271-d212469e-01b9-4058-873e-8ead538107b9.PNG)
