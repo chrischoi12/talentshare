@@ -883,9 +883,9 @@ Readiness 설정이 없는 yml 파일로 v2 이미지를 Deploy 한다.
 kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_readiness_v2.yml
 ```
 
-Availability가 50%대로 떨어졌음을 확인했다. Readiness가 보장되지 않아 배포 중 서비스에 접근할 수 없어서 에러가 발생한 것이다.
+Availability가 60%대로 떨어졌음을 확인했다. Readiness가 보장되지 않아 배포 중 서비스에 접근할 수 없어서 에러가 발생한 것이다.
 
-![readiness_1](https://user-images.githubusercontent.com/3106233/130343426-2e6baed3-e582-42fb-8a12-6ca8f8c794af.png)
+![readiness_prod_1](https://user-images.githubusercontent.com/3106233/131769866-f9aa9e70-52e1-4ab3-87ee-bfcb2a871da9.png)
 
 v1 이미지로 원복한다.
 ```
@@ -914,7 +914,7 @@ kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_readiness_
 
 Availability가 99%대로 증가했다.
 
-![readiness_2](https://user-images.githubusercontent.com/3106233/130343501-91db1b5c-f821-4237-a4ba-a355c1ab16e3.png)
+![readiness_prod_2](https://user-images.githubusercontent.com/3106233/131770192-8a9c43a6-f5f6-438c-acf1-0971cb07b9e1.png)
 
 
 ## Liveness
