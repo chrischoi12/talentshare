@@ -665,6 +665,8 @@ aws ecr create-repository --repository-name jaehong-order --region ap-northeast-
 aws ecr create-repository --repository-name jaehong-payment --region ap-northeast-2
 ::ECR Name, Region
 
+![ECR](https://user-images.githubusercontent.com/3106233/131766887-97e2931e-4941-4262-9611-7f8e001ec73d.png)
+
 docker login --username AWS -p $(aws ecr get-login-password-stdin --region ap-northeast-2) [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/
 ::Region id, ECR 저장소 입력
 ```
