@@ -822,7 +822,7 @@ siege -c1 -t10S -v --content-type "application/json" 'http://order:8080/orders P
 siege -c5 -t10S -v --content-type "application/json" 'http://order:8080/orders POST {"name": "VIP", "cardNo": "999"}'
 ```
 
-![circuit_prod_1](https://user-images.githubusercontent.com/3106233/131793162-a643b988-2392-418f-81a0-7dd064cbce04.png)
+![circuit breaker_prod_1](https://user-images.githubusercontent.com/3106233/131794505-a9132e58-72f4-40ce-a7e1-0dd4444c6e31.png)
 
 부하나 상대 시스템의 Req 처리 오류로 인해 Microservice가 죽지 않도록 Circuit Breaker가 미연에 방지한다.
 
