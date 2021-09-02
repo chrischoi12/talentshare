@@ -778,7 +778,7 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080
 ![sieze-http](https://user-images.githubusercontent.com/3106233/131769119-ea74979a-7b8e-4344-abdf-1cd9ac282a2f.png)
 
 
-## 동기식 호출 / 서킷 브레이킹 / 장애격리
+## 동기식 호출/서킷 브레이킹/장애격리
 
 
 ## Circuit Breaker
@@ -949,7 +949,7 @@ failureThreshold를 넘어서면 CrashLoopBackOff 상태로 서비스가 중지�
 ![liveness_prod_2](https://user-images.githubusercontent.com/3106233/131770907-31859503-59ce-42e7-99ab-c52dee02bd78.png)
 
 
-## Persistence VolumeE
+## Persistence Volume
 
 EFS (Elastic File Storage) 를 신규로 생성한 후, Pod가 EFS에 접근할 수 있또록 설정한다.
 
