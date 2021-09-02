@@ -18,6 +18,11 @@
     - [Persistence Volume](#Persistence-Volume)
 
 
+다음 평가 항목을 바탕으로 실습을 진행했다.
+
+https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
+
+
 # 서비스 시나리오
 회계, 영상 편집, 스포츠 등 다양한 재능을 사용자가 배우거나 도움을 받을 수 있도록 재능을 연결하는 시스템인 talentshare의 요구사항은 다음과 같습니다.
 
