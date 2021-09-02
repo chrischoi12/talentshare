@@ -641,14 +641,12 @@ EKS (Elastic Kubernetes Service) 를 생성한다. 실습 때는 Kubernetes vers
 ```
 eksctl create cluster --name [EKS name] --version 1.19 --nodegroup-name standard-workers --node-type t3.medium --nodes 4 --nodes-min 1 --nodes-max 4
 ::EKS name 입력 (지정)
+```
 
 AWS Console > EKS
 - 클러스터 클릭
 - 클러스터에 상태가 활성이면 완료.
 
-```
-Image
-```
 ![EKS](https://user-images.githubusercontent.com/3106233/131766700-6f4ce83b-2894-4401-b1f8-33d61d71e251.png)
 
 [클러스터 토큰 가져오기. Context arn 추가]
@@ -668,9 +666,6 @@ aws ecr create-repository --repository-name jaehong-order --region ap-northeast-
 aws ecr create-repository --repository-name jaehong-payment --region ap-northeast-2
 ::ECR Name, Region
 
-```
-Image
-```
 ![ECR](https://user-images.githubusercontent.com/3106233/131766887-97e2931e-4941-4262-9611-7f8e001ec73d.png)
 
 docker login --username AWS -p $(aws ecr get-login-password-stdin --region ap-northeast-2) [AWS 12자리 계정].dkr.ecr.ap-northeast-2.amazonaws.com/
