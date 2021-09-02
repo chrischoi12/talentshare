@@ -633,9 +633,9 @@ aws configure list
  - 위 설정 등록 여부 확인
 ```
 
-EKS (Elastic Kubernetes Service) 를 생성한다.
+EKS (Elastic Kubernetes Service) 를 생성한다. 실습 때는 Kubernetes version을 1.17로 설정했으나, Depreciate 된 상태로 1.19로 변경했다.
 ```
-eksctl create cluster --name [EKS name] --version 1.17 --nodegroup-name standard-workers --node-type t3.medium --nodes 4 --nodes-min 1 --nodes-max 4
+eksctl create cluster --name [EKS name] --version 1.19 --nodegroup-name standard-workers --node-type t3.medium --nodes 4 --nodes-min 1 --nodes-max 4
 ::EKS name 입력 (지정)
 
 AWS Console > EKS
