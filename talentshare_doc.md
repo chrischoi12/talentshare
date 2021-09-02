@@ -994,6 +994,6 @@ kubectl get pvc -n yanolza
 kubectl apply -f pod-with-pvc.yaml
 ```
 
-- df-k로 EFS에 접근 가능
+- ls, pwd, df-k로 EFS에 접근 가능
 
-![dfk](https://user-images.githubusercontent.com/3106233/130389161-454819e2-4353-479a-958d-7ca2ad45a731.png)
+![EFS_prod](https://user-images.githubusercontent.com/3106233/131772278-2ae25159-08f3-4c9c-9bec-804bd31f61ec.png)
