@@ -646,6 +646,8 @@ AWS Console > EKS
 - 클러스터 클릭
 - 클러스터에 상태가 활성이면 완료.
 
+![EKS](https://user-images.githubusercontent.com/3106233/131766700-6f4ce83b-2894-4401-b1f8-33d61d71e251.png)
+
 [클러스터 토큰 가져오기. Context arn 추가]
 aws eks --region ap-northeast-2 update-kubeconfig --name [EKS name]
 ::Region code, EKS name 입력
