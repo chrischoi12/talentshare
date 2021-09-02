@@ -2,6 +2,7 @@
 - [talentshare](#---)
   - [서비스 시나리오](#서비스-시나리오)
   - [분석 설계](#분석-설계)
+  - [개발 환경](#개발-환경)
   - [구현](#구현)
     - [DDD 의 적용](#ddd의-적용)
     - [Polyglot Persistence](#Polyglot-Persistence)
@@ -80,6 +81,93 @@
 - Inbound adaptor와 Outbound adaptor를 구분함
 - 호출관계에서 PubSub 과 Req/Resp 를 구분함
 - 서브 도메인과 바운디드 컨텍스트를 분리함
+
+
+# 개발 환경
+Windows Local에 Ubuntu를 설치해 개발을 수행했다.
+
+- Windows WL2 설정
+- Ubuntu 설치
+- Java: OpenJDK 설치
+- Kafka 설치
+```
+wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.12/zookeeper-3.4.12.tar.gz
+tar xvf kafka_2.11-2.1.0.tgz
+```
+
+- Maven 설치
+```
+sudo apt install maven
+```
+
+- Httpie 설치
+```
+sudo apt install httpie
+```
+
+- eksctl 설치
+```
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+```
+
+- Docker 설치
+```
+sudo apt-get update
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+sudo apt update
+sudo apt install docker-ce
+sudo usermod -aG docker [Username]
+sudo add-apt-repository \
+"deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) \
+stable"
+sudo systemctl enable docker
+sudo service docker start
+```
+
+- Helm 설치
+- Kubectl 설치
+```
+sudo apt-get update && sudo apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+```
+
+- AWS Client 설치
+```
+sudo apt-get install unzip
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+- Siege 설치
+```
+sudo apt install siege
+```
+
+- git 설치
+```
+sudo apt-get install git
+sudo apt install git
+git --version
+
+git config --global user.name [이름]
+git config --global user.mail [메일 주소]
+```
+
+- Istio + kiali설치 
+```
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.7.1 TARGET_ARCH=x86_64 sh -
+cd istio-1.7.1
+export PATH=$PWD/bin:$PATH
+istioctl install --set profile=demo --set hub=gcr.io/istio-release
+```
 
 
 # 구현
