@@ -773,6 +773,8 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080
 
 ![deploy_loadbalancer](https://user-images.githubusercontent.com/3106233/131768833-8c6a49e4-9802-40bf-8621-3bbe1d1167b1.png)
 
+![sieze-http](https://user-images.githubusercontent.com/3106233/131769119-ea74979a-7b8e-4344-abdf-1cd9ac282a2f.png)
+
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 
