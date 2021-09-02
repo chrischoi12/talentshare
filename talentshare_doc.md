@@ -11,7 +11,7 @@
     - [비동기식 호출 과 Eventual Consistency](#비동기식-호출-과-Eventual-Consistency)
   - [운영](#운영)
     - [Deploy](#Deploy)
-    - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출/서킷-브레이킹/장애격리)
+    - [장애 격리](#장애-격리)
     - [HPA](#HPA)
     - [Readiness](#Readiness)
     - [Liveness](#Liveness)
@@ -778,7 +778,7 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080
 ![sieze-http](https://user-images.githubusercontent.com/3106233/131769119-ea74979a-7b8e-4344-abdf-1cd9ac282a2f.png)
 
 
-## 동기식 호출/서킷 브레이킹/장애격리
+## 장애 격리
 
 
 ## Circuit Breaker
