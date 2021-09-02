@@ -771,7 +771,7 @@ kubectl expose deploy gateway --type=LoadBalancer --port=8080
 ::Gateway만 LoadBalancer로 설정
 ```
 
-![LoadBalancer](https://user-images.githubusercontent.com/3106233/130342569-7b24f66c-c968-48c4-a317-4250f0c74018.png)
+![deploy_loadbalancer](https://user-images.githubusercontent.com/3106233/131768833-8c6a49e4-9802-40bf-8621-3bbe1d1167b1.png)
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
