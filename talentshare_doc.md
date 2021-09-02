@@ -944,11 +944,11 @@ kubectl apply -f /home/jacesky/code/talentshare/kubernetes/deployment_liveness.y
 
 RESTARTS 회수가 증가하는 것을 확인했다.
 
-![live 1](https://user-images.githubusercontent.com/3106233/130343737-4a129246-be03-4309-a840-447c03833ca4.png)
+![liveness_prod_1](https://user-images.githubusercontent.com/3106233/131770653-12d11449-854d-4851-ab3e-815d9e23b5d3.png)
 
 failureThreshold를 넘어서면 CrashLoopBackOff 상태로 서비스가 중지된다.
 
-![live 2](https://user-images.githubusercontent.com/3106233/130343747-7f942b6d-f4fe-423d-8036-75a1d5d6e7c3.png)
+![liveness_prod_2](https://user-images.githubusercontent.com/3106233/131770907-31859503-59ce-42e7-99ab-c52dee02bd78.png)
 
 
 ## Persistence VolumeE
