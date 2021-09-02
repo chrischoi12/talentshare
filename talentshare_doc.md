@@ -812,19 +812,17 @@ spec:
 
 - Siege를 사용해 부하를 발생한다. 1명 처리 시 문제 없이 실행되었다.
 ```
-#1명 처리
 siege -c1 -t10S -v --content-type "application/json" 'http://order:8080/orders POST {"name": "VIP", "cardNo": "999"}'
 ```
 
-![circuit 1](https://user-images.githubusercontent.com/3106233/130348891-56d84300-d947-4d2b-8f6e-cf26bdbccfab.png)
+![circuit breaker_prod_0](https://user-images.githubusercontent.com/3106233/131793742-bb12b06c-43ab-4c67-861b-71b09e31cfa5.png)
 
 - 5명 처리 시 중간 중간 임계치 초과로 인해 에러가 발생했고, Availability는 72% 수준으로 떨어졌다.
 ```
-#5명 처리
 siege -c5 -t10S -v --content-type "application/json" 'http://order:8080/orders POST {"name": "VIP", "cardNo": "999"}'
 ```
 
-![circuit 2](https://user-images.githubusercontent.com/3106233/130348900-99d2b7ca-0e14-423b-bea9-7c363cd6c77b.png)
+![circuit_prod_1](https://user-images.githubusercontent.com/3106233/131793162-a643b988-2392-418f-81a0-7dd064cbce04.png)
 
 부하나 상대 시스템의 Req 처리 오류로 인해 Microservice가 죽지 않도록 Circuit Breaker가 미연에 방지한다.
 
